@@ -49,79 +49,78 @@ Rcpp::List TreeFactor_APTree_2_cpp(arma::vec R, arma::vec Y, arma::mat X, arma::
     arma::vec leaf_index(X.n_rows);
     model.predict_AP(X, root, months, leaf_index);
     
-    // cout << "leaf index " << leaf_index << endl;
+    cout << "leaf index " << leaf_index << endl;
 
-    // size_t count_left = 0;
-    // size_t count_right = 0;
-    // for (size_t i = 0; i < X.n_rows; i++)
-    // {
-    //     if (leaf_index(i) == 2)
-    //     {
-    //         count_left++;
-    //     }
-    //     else
-    //     {
-    //         count_right++;
-    //     }
-    // }
+    size_t count_left = 0;
+    size_t count_right = 0;
+    for (size_t i = 0; i < X.n_rows; i++)
+    {
+        if (leaf_index(i) == 2)
+        {
+            count_left++;
+        }
+        else
+        {
+            count_right++;
+        }
+    }
 
-    // arma::vec months_left(count_left);
-    // arma::vec months_right(count_right);
-    // arma::vec index_left(count_left);
-    // arma::vec index_right(count_right);
-    // size_t temp_ind_left = 0;
-    // size_t temp_ind_right = 0;
-    // for (size_t i = 0; i < X.n_rows; i++)
-    // {
-    //     if (leaf_index(i) == 2)
-    //     {
-    //         months_left(temp_ind_left) = months(i);
-    //         index_left(temp_ind_left) = i;
-    //         temp_ind_left++;
-    //     }
-    //     else
-    //     {
-    //         months_right(temp_ind_right) = months(i);
-    //         index_right(temp_ind_right) = i;
-    //         temp_ind_right++;
-    //     }
-    // }
+    arma::vec months_left(count_left);
+    arma::vec months_right(count_right);
+    arma::vec index_left(count_left);
+    arma::vec index_right(count_right);
+    size_t temp_ind_left = 0;
+    size_t temp_ind_right = 0;
+    for (size_t i = 0; i < X.n_rows; i++)
+    {
+        if (leaf_index(i) == 2)
+        {
+            months_left(temp_ind_left) = months(i);
+            index_left(temp_ind_left) = i;
+            temp_ind_left++;
+        }
+        else
+        {
+            months_right(temp_ind_right) = months(i);
+            index_right(temp_ind_right) = i;
+            temp_ind_right++;
+        }
+    }
 
-    // arma::vec unique_months_right = arma::sort(arma::unique(months_right));
-    // arma::vec unique_months_left = arma::sort(arma::unique(months_left));
+    arma::vec unique_months_right = arma::sort(arma::unique(months_right));
+    arma::vec unique_months_left = arma::sort(arma::unique(months_left));
+    std::map<size_t, size_t> months_list_left;
+    std::map<size_t, size_t> months_list_right;
 
-    // std::map<size_t, size_t> months_list_left;
-    // std::map<size_t, size_t> months_list_right;
+    for (size_t i = 0; i < unique_months_left.n_elem; i++)
+    {
+        // count from zero
+        months_list_left[unique_months_left(i)] = i;
+    }
 
-    // for (size_t i = 0; i < unique_months_left.n_elem; i++)
-    // {
-    //     // count from zero
-    //     months_list_left[unique_months_left(i)] = i;
-    // }
+    for (size_t i = 0; i < unique_months_right.n_elem; i++)
+    {
+        // count from zero
+        months_list_right[unique_months_right(i)] = i;
+    }
 
-    // for (size_t i = 0; i < unique_months_right.n_elem; i++)
-    // {
-    //     // count from zero
-    //     months_list_right[unique_months_right(i)] = i;
-    // }
+    size_t num_months_left = unique_months_left.n_elem;
+    size_t num_months_right = unique_months_right.n_elem;
 
-    // size_t num_months_left = unique_months_left.n_elem;
-    // size_t num_months_right = unique_months_right.n_elem;
+    root.getl()->theta.resize(num_months_left);
+    root.getr()->theta.resize(num_months_right);
 
-    // root.getl()->theta.resize(num_months_left);
-    // root.getr()->theta.resize(num_months_right);
+    cout << "number of data on left and right " << count_left << " " << count_right << endl;
 
-    // cout << "number of data on left and right " << count_left << " " << count_right << endl;
+    cout << "number of months on left and right " << num_months_left << " " << num_months_right << endl;
 
-    // cout << "number of months on left and right " << num_months_left << " " << num_months_right << endl;
+    State state_left(X, Y, R, Z, H, portfolio_weight, loss_weight, stocks, months, first_split_var, second_split_var, third_split_var, deep_split_var, index_left, num_months_left, months_list_left, num_stocks, min_leaf_size, max_depth, num_cutpoints, equal_weight, no_H, abs_normalize, weighted_loss, stop_no_gain, lambda, count_left, first_split_mat);
 
-    // State state_left(X, Y, R, Z, H, portfolio_weight, loss_weight, stocks, months, first_split_var, second_split_var, third_split_var, deep_split_var, index_left, num_months_left, months_list_left, num_stocks, min_leaf_size, max_depth, num_cutpoints, equal_weight, no_H, abs_normalize, weighted_loss, stop_no_gain, lambda, count_left, first_split_mat);
+    State state_right(X, Y, R, Z, H, portfolio_weight, loss_weight, stocks, months, first_split_var, second_split_var, third_split_var, deep_split_var, index_right, num_months_right, months_list_right, num_stocks, min_leaf_size, max_depth, num_cutpoints, equal_weight, no_H, abs_normalize, weighted_loss, stop_no_gain, lambda, count_right, first_split_mat);
 
-    // State state_right(X, Y, R, Z, H, portfolio_weight, loss_weight, stocks, months, first_split_var, second_split_var, third_split_var, deep_split_var, index_right, num_months_right, months_list_right, num_stocks, min_leaf_size, max_depth, num_cutpoints, equal_weight, no_H, abs_normalize, weighted_loss, stop_no_gain, lambda, count_right, first_split_mat);
+    state.flag_first_cut = false;
 
-    // state.flag_first_cut = false;
-
-    // state.split_candidates = split_candidates_backup;
+    state.split_candidates = split_candidates_backup;
 
 
     double cutpoint = root.getv();
